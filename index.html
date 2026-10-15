@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Queen Shuby's 26th</title>
+<title>Queen Shuby's 24th</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
@@ -33,9 +33,10 @@
     font-weight: 400;
     font-size: clamp(2.4rem, 12vw, 3.8rem);
     line-height: 1.05;
-    color: var(--sun);
+    color: #c9a9ff;  /* light purple. Other options: #b388ff (brighter), #e0ccff (lighter) */
+    text-shadow: 0 2px 0 #1a0b38, 0 0 14px rgba(26, 11, 56, .9);
   }
-  .tag { color: var(--muted); margin: 10px 0 26px; }
+  .tag { display: inline-block; color: var(--text); background: rgba(26, 11, 56, .85); padding: 8px 14px; border-radius: 10px; margin: 12px 0 26px; }
 
   /* Route */
   ol.route { list-style: none; padding: 0; position: relative; display: grid; gap: 18px; }
@@ -56,7 +57,7 @@
     border-radius: 14px; overflow: hidden;
   }
   .stop.open .card { border-color: var(--accent); }
-  .pic { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; background: var(--surface-2); }
+  .pic { display: block; width: 100%; height: auto; max-height: 70vh; object-fit: contain; margin-top: 14px; border-radius: 10px; background: var(--surface-2); }
   .inner { padding: 16px 18px; }
   .head { all: unset; display: block; width: 100%; cursor: pointer; box-sizing: border-box; }
   .head:focus-visible { outline: 3px solid var(--sun); outline-offset: 6px; border-radius: 8px; }
@@ -83,6 +84,7 @@
   .mystery.revealed { border-style: solid; cursor: default; animation: pop .4s ease; }
   .mystery.revealed .q { font-size: 1.4rem; font-family: "DM Sans", sans-serif; font-weight: 700; color: var(--text); }
   .mystery small { color: var(--muted); }
+  .mystery .pic { margin-top: 0; max-height: 50vh; }
 
   /* Intro animation */
   body.locked { overflow: hidden; }
@@ -99,13 +101,15 @@
   @keyframes drop { from { transform: translateY(-60vh) rotate(-25deg); opacity: 0; } }
   .intro-title {
     font-family: "Bagel Fat One", sans-serif; font-weight: 400;
-    font-size: clamp(2.6rem, 13vw, 4.4rem); line-height: 1.05; color: var(--sun);
+    font-size: clamp(2.6rem, 13vw, 4.4rem); line-height: 1.05; color: #c9a9ff;
+    text-shadow: 0 2px 0 #1a0b38, 0 0 14px rgba(26, 11, 56, .9);
     display: flex; flex-wrap: wrap; justify-content: center; gap: 0 .28em;
   }
   .intro-title span { display: inline-block; animation: word .6s cubic-bezier(.3, 1.6, .5, 1) both; }
   .intro-title span:nth-child(1) { animation-delay: 1s; }
   .intro-title span:nth-child(2) { animation-delay: 1.25s; }
   .intro-title span:nth-child(3) { animation-delay: 1.5s; }
+  .intro-title span:nth-child(4) { animation-delay: 1.8s; }
   @keyframes word { from { transform: scale(.3) translateY(30px); opacity: 0; } }
   .intro-sub { color: var(--muted); animation: fade .6s 2s both; }
   @keyframes fade { from { opacity: 0; } }
@@ -113,7 +117,7 @@
     font: inherit; font-weight: 700; cursor: pointer; margin-top: 10px;
     padding: 14px 28px; border-radius: 999px; border: 2px solid var(--sun);
     background: var(--sun); color: var(--bg);
-    animation: fade .6s 2.4s both;
+    animation: fade .6s 2.9s both;
   }
   .intro-btn:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
   .spark { position: absolute; color: var(--sun); animation: twinkle 2.4s ease-in-out infinite; }
@@ -141,16 +145,15 @@
     <rect x="8" y="56" width="84" height="8" rx="3" fill="#e8b800"/>
     <circle cx="2" cy="14" r="5" fill="#ff7fa6"/><circle cx="50" cy="6" r="5" fill="#ff7fa6"/><circle cx="98" cy="14" r="5" fill="#ff7fa6"/>
   </svg>
-  <h2 class="intro-title"><span>Queen</span><span>Shuby's</span><span>26th!</span></h2>
-  <p class="intro-sub">Another year older. Your day is planned.</p>
+  <h2 class="intro-title"><span>Queen</span><span>Shuby's</span><span>24th</span><span>Birthday!</span></h2>
   <button class="intro-btn" id="start" type="button">Open the plan</button>
 </div>
 
 
 <main class="wrap">
   <header>
-    <h1>Queen Shuby's 26th!</h1>
-    <p class="tag">Another year older. Here is the plan for the day.</p>
+    <h1>Queen Shuby's 24th!</h1>
+    <p class="tag">Here is the plan for the day. Click on each box o</p>
   </header>
   <ol class="route" id="route"></ol>
 </main>
@@ -159,35 +162,36 @@
 /* ============ EDIT THIS BLOCK ============ */
 
 // Background photo (optional). Put the file in an "images" folder, e.g. "images/bg.jpg". Leave "" for plain purple.
-const BACKGROUND = "";
+const BACKGROUND = "images/greyCat.jpg";
+
+// Background picture for the opening screen (the crown animation). Leave "" for the purple glow.
+const INTRO_BACKGROUND = "images/greyCat.jpg";
 
 // For each stop, "img" is an optional picture, e.g. "images/stop1.jpg". Leave "" for none.
 const STOPS = [
-  { icon: "🏠", color: "#ffd23f", time: "1:00 PM", title: "Bobeu arrives at Shuby's house",
-    text: "Hi Shuby! The day starts here.", img: "" },
-  { icon: "🚆", color: "#7cc4ff", time: "2:30 PM", title: "Leave together from Sembawang",
-    text: "Bags packed, tickets ready. Off we go!", img: "" },
-  { icon: "🐱", color: "#b79cff", time: "Afternoon", title: "Meowstery activity at Geylang",
+  { color: "#ffd23f", time: "1:00 PM", title: "Bobeu arrives at Shuby's house",
+    text: "Bobeu arrive at Shuby's house at 1pm o", img: "images/gift.jpg" },
+  { color: "#7cc4ff", time: "2:30 PM", title: "Leave together from Sembawang",
+    text: "Bring your student card yea hehe", img: "images/walking.jpg" },
+  { color: "#b79cff", time: "Afternoon", title: "Meowstery activity at Geylang",
     text: "What happens in Geylang is a secret. Tap the box if you can't wait.",
-    mystery: true, place: "Geylang", reveal: "Write the activity here.", img: "" },
-  { icon: "🏮", color: "#ff7fa6", time: "Evening", title: "Lovely dinner together at Chinatown",
-    text: "Come hungry.", img: "" }
+    mystery: true, reveal: "hey heyy, already say its a meowstery le o", img: "images/confuse.gif" },
+  { color: "#ff7fa6", time: "Evening", title: "Lovely dinner together at Chinatown",
+    text: "mmm delicious mlem mlem", img: "" }
 ];
 /* ========================================= */
 
 const $ = id => document.getElementById(id);
-const KEY = "shuby26-state";
-let state = { open: 0, revealed: [] };
-try { state = Object.assign(state, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (e) {}
-const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} };
+let state = { open: null, revealed: [] };  // fresh every visit: all cards closed, mystery hidden
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const esc = s => { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; };
 
 if (BACKGROUND) {
   document.body.style.backgroundImage =
-    "linear-gradient(rgba(26,11,56,.88), rgba(26,11,56,.92)), url('" + BACKGROUND + "')";
-  document.body.style.backgroundSize = "cover";
+    "linear-gradient(rgba(0,0,0,.3), rgba(0,0,0,.3)), url('" + BACKGROUND + "')";
+  document.body.style.backgroundSize = "cover, contain";
   document.body.style.backgroundPosition = "center";
+  document.body.style.backgroundRepeat = "no-repeat";
   document.body.style.backgroundAttachment = "fixed";
 }
 
@@ -205,21 +209,22 @@ function render() {
     const mystery = st.mystery ? `
       <button class="mystery${revealed ? " revealed" : ""}" data-reveal="${i}" ${revealed ? "disabled" : ""}>
         <span class="q">${revealed ? esc(st.reveal) : "?"}</span>
-        <small>${revealed ? esc(st.place) : "Tap to reveal"}</small>
+        ${revealed ? pic : ""}
+        ${revealed ? (st.place ? `<small>${esc(st.place)}</small>` : "") : "<small>Tap to reveal</small>"}
       </button>` : "";
     li.innerHTML = `
       <div class="dot" aria-hidden="true">${i + 1}</div>
       <div class="card">
-        ${pic}
         <div class="inner">
           <button class="head" data-open="${i}" aria-expanded="${open}">
             <span class="chev" aria-hidden="true">▾</span>
             <div class="when">${esc(st.time)}</div>
-            <div class="title">${esc(st.icon)} ${esc(st.title)}</div>
+            <div class="title">${esc(st.title)}</div>
           </button>
           <div class="body">
             <p>${esc(st.text)}</p>
             ${mystery}
+            ${st.mystery ? "" : pic}
           </div>
         </div>
       </div>`;
@@ -238,7 +243,7 @@ route.addEventListener("click", e => {
     if (!state.revealed.includes(i)) state.revealed.push(i);
     if (!reduce) burst();
   }
-  save(); render();
+  render();
   const h = route.querySelector(".stop.open .head");
   if (t.dataset.open !== undefined && h) h.focus({ preventScroll: true });
 });
@@ -273,7 +278,11 @@ function tick() {
 /* Intro */
 const intro = $("intro"), startBtn = $("start");
 document.body.classList.add("locked");
-setTimeout(() => startBtn.focus({ preventScroll: true }), reduce ? 0 : 2500);
+if (INTRO_BACKGROUND) {
+  intro.style.background = "linear-gradient(rgba(0,0,0,.25), rgba(0,0,0,.45)) center / cover no-repeat, url('" + INTRO_BACKGROUND + "') center / contain no-repeat #1a0b38";
+}
+if (!reduce) setTimeout(() => { if (intro.isConnected && !intro.classList.contains("leave")) burst(); }, 2400);
+setTimeout(() => startBtn.focus({ preventScroll: true }), reduce ? 0 : 3000);
 startBtn.addEventListener("click", () => {
   intro.classList.add("leave");
   document.body.classList.remove("locked");
