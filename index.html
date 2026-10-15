@@ -26,7 +26,15 @@
     padding: 28px 16px 72px;
     min-height: 100vh;
   }
-  .wrap { width: min(600px, 100%); margin: 0 auto; }
+  .wrap { width: min(600px, 100%); margin: 0 auto; position: relative; }
+
+  /* Page background (fixed layer instead of background-attachment: fixed, which phones handle badly) */
+  .bg {
+    position: fixed; inset: 0; z-index: -1;
+    background-position: center; background-repeat: no-repeat; background-size: contain;
+    background-color: var(--bg);
+  }
+  .bg::after { content: ""; position: absolute; inset: 0; background: rgba(0, 0, 0, .3); }
 
   h1 {
     font-family: "Bagel Fat One", sans-serif;
@@ -57,7 +65,7 @@
     border-radius: 14px; overflow: hidden;
   }
   .stop.open .card { border-color: var(--accent); }
-  .pic { display: block; width: 100%; height: auto; max-height: 70vh; object-fit: contain; margin-top: 14px; border-radius: 10px; background: var(--surface-2); }
+  .pic { display: block; width: 100%; max-width: 100%; height: auto; max-height: 70vh; object-fit: contain; margin-top: 14px; border-radius: 10px; background: var(--surface-2); }
   .inner { padding: 16px 18px; }
   .head { all: unset; display: block; width: 100%; cursor: pointer; box-sizing: border-box; }
   .head:focus-visible { outline: 3px solid var(--sun); outline-offset: 6px; border-radius: 8px; }
@@ -74,7 +82,7 @@
 
   /* Mystery box */
   .mystery {
-    display: grid; place-items: center; text-align: center; gap: 6px;
+    display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; text-align: center; gap: 6px;
     min-height: 120px; padding: 16px;
     border: 2px dashed var(--accent); border-radius: 12px; background: var(--surface-2);
     cursor: pointer; font: inherit; color: var(--text); width: 100%;
@@ -132,6 +140,7 @@
 </style>
 </head>
 <body>
+<div class="bg" id="bg" aria-hidden="true"></div>
 <canvas id="confetti" aria-hidden="true"></canvas>
 
 <div class="intro" id="intro" role="dialog" aria-label="Welcome">
@@ -186,12 +195,7 @@ const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const esc = s => { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; };
 
 if (BACKGROUND) {
-  document.body.style.backgroundImage =
-    "linear-gradient(rgba(0,0,0,.3), rgba(0,0,0,.3)), url('" + BACKGROUND + "')";
-  document.body.style.backgroundSize = "cover, contain";
-  document.body.style.backgroundPosition = "center";
-  document.body.style.backgroundRepeat = "no-repeat";
-  document.body.style.backgroundAttachment = "fixed";
+  $("bg").style.backgroundImage = "url('" + BACKGROUND + "')";
 }
 
 const route = $("route");
@@ -204,24 +208,36 @@ function render() {
     li.className = "stop" + (open ? " open" : "");
     li.style.setProperty("--accent", st.color);
     li.style.setProperty("--i", i);
-    const pic = st.img ? `<img class="pic" src="${esc(st.img)}" alt="" loading="lazy">` : "";
-    const mystery = st.mystery ? `
-      <button class="mystery${revealed ? " revealed" : ""}" data-reveal="${i}" ${revealed ? "disabled" : ""}>
-        <span class="q">${revealed ? esc(st.reveal) : "?"}</span>
-        ${revealed ? pic : ""}
-        ${revealed ? (st.place ? `<small>${esc(st.place)}</small>` : "") : "<small>Tap to reveal</small>"}
-      </button>` : "";
+
+    // No loading="lazy": images inside hidden boxes often never load on phones
+    const pic = st.img ? `<img class="pic" src="${esc(st.img)}" alt="" decoding="async">` : "";
+
+    // Before reveal: a button. After reveal: a plain div (images inside buttons are flaky on mobile Safari)
+    let mystery = "";
+    if (st.mystery) {
+      mystery = revealed ? `
+      <div class="mystery revealed">
+        <span class="q">${esc(st.reveal)}</span>
+        ${pic}
+        ${st.place ? `<small>${esc(st.place)}</small>` : ""}
+      </div>` : `
+      <button class="mystery" type="button" data-reveal="${i}">
+        <span class="q">?</span>
+        <small>Tap to reveal</small>
+      </button>`;
+    }
+
     li.innerHTML = `
       <div class="dot" aria-hidden="true">${i + 1}</div>
       <div class="card">
         <div class="inner">
-          <button class="head" data-open="${i}" aria-expanded="${open}">
+          <button class="head" type="button" data-open="${i}" aria-expanded="${open}">
             <span class="chev" aria-hidden="true">▾</span>
             <div class="when">${esc(st.time)}</div>
             <div class="title">${esc(st.title)}</div>
           </button>
           <div class="body">
-            <p>${esc(st.text)}</p>
+            <p>${esc(st.text || "")}</p>
             ${mystery}
             ${st.mystery ? "" : pic}
           </div>
